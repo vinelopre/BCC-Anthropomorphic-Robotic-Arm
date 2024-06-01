@@ -2,7 +2,7 @@
 
 This folder all the software code for the Bergen Community College STEM Summer Research Program project *Anthropomorphic Robot Arm (ARA).*
 
-[Arm Design](assets/arm_design.png)
+[Arm Design](https://raw.githubusercontent.com/vinelopre/BCC-Anthropomorphic-Robotic-Arm/main/assets/arm_design.png)
 
 ## OBJECTIVE
 
