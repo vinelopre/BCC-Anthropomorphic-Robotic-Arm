@@ -2,6 +2,8 @@
 
 This folder all the software code for the Bergen Community College STEM Summer Research Program project *Anthropomorphic Robot Arm (ARA).*
 
+[Arm Design](assets/arm_design.png)
+
 ## OBJECTIVE
 
 To develop a biomimetic prosthetic arm using affordable materials and 3D-printed components to imitate the biological standard.
