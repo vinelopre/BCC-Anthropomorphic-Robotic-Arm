@@ -20,6 +20,7 @@ Boards
 ### LIBRARIES
 - Servo (1.2.1) by Michael Margolis
 - RF24 (1.4.8)  by nRF24
+- SPI
 
 
 ## CONTACT INFORMATION
