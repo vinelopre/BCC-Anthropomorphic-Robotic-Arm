@@ -21,6 +21,10 @@ To achieve this goal, one team will concentrate on redesigning existing mechanic
 - Arduino UNO R3
 - Arduino Mega 2560 Rev3
 
+### LANGUAGES
+
+- C++
+
 ### TOOLS
 
 - Visual Studio Code
