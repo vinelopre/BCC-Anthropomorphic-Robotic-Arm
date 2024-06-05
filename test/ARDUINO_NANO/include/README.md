@@ -1,4 +1,10 @@
 
+# NOTES
+
+Any header files stored in this folder should be prefixed with `nano`.
+
+# HEADER FILES INFORMATION
+
 This directory is intended for project header files.
 
 A header file is a file containing C declarations and macro definitions

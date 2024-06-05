@@ -1,4 +1,10 @@
 
+# NOTES
+
+Any library files stored in this folder should be prefixed with `nano`.
+
+# LIBRARY FILES INFORMATION
+
 This directory is intended for project specific (private) libraries.
 PlatformIO will compile them to static libraries and link into executable file.
 
