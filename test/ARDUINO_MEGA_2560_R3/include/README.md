@@ -1,7 +1,7 @@
 
 # NOTES
 
-Any header files stored in this folder should be prefixed with `mega`.
+Any header files stored in this folder should be prefixed with `tmega`.
 
 # HEADER FILES INFORMATION
 

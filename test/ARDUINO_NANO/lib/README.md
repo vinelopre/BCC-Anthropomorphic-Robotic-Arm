@@ -1,7 +1,7 @@
 
 # NOTES
 
-Any library files stored in this folder should be prefixed with `nano`.
+Any library files stored in this folder should be prefixed with `tnano`.
 
 # LIBRARY FILES INFORMATION
 

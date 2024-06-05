@@ -1,7 +1,7 @@
 
 # NOTES
 
-Any library files stored in this folder should be prefixed with `mega`.
+Any library files stored in this folder should be prefixed with `tmega`.
 
 # LIBRARY FILES INFORMATION
 

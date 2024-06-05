@@ -1,7 +1,7 @@
 
 # NOTES
 
-Any header files stored in this folder should be prefixed with `nano`.
+Any header files stored in this folder should be prefixed with `tnano`.
 
 # HEADER FILES INFORMATION
 

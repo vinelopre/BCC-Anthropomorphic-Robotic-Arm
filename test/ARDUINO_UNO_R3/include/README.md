@@ -1,7 +1,7 @@
 
 # NOTES
 
-Any header files stored in this folder should be prefixed with `uno`.
+Any header files stored in this folder should be prefixed with `tuno`.
 
 # HEADER FILES INFORMATION
 

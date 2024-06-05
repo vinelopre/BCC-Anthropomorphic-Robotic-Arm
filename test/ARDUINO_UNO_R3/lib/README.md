@@ -1,7 +1,7 @@
 
 # NOTES
 
-Any library files stored in this folder should be prefixed with `uno`.
+Any library files stored in this folder should be prefixed with `tuno`.
 
 # LIBRARY FILES INFORMATION
 
