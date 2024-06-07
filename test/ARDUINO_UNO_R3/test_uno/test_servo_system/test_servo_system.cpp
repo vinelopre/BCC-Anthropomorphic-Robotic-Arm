@@ -4,7 +4,7 @@ This program is designed to test the data input and output of one or more servos
 
 It will take a number of servos and then initialize them in an array of class Servo.
 
-It will then run a series of tests on every servo, at the same time.
+It will then run a series of tests on every servo at the same time.
 
 The test results and movement of the servo will help determine whether an issue is electrical, mechanical, or software-related.
 */
@@ -40,6 +40,7 @@ The test results and movement of the servo will help determine whether an issue 
 #include <unity.h>
 
 // FUNCTION PROTOTYPES
+void test_settings();
 void test_pinSetup();
 
 void test_range();
@@ -49,7 +50,7 @@ void test_precision();
 // TEST SETUP
 void setUp(void)
 {
-
+  
 }
 
   
@@ -130,6 +131,13 @@ void loop() {
 }
 
 //**************** TEST END ****************
+
+/// FUNCTION DEFINITIONS
+
+void test_settings()
+{
+  // TODO: WRITE TEST TO CONFIRM SETTINGS
+}
 
 void test_pinSetup()
 {
