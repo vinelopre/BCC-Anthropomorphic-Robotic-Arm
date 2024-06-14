@@ -71,6 +71,9 @@ int analogInput[ASSEMBLY_COUNT] = {};
 const int OUTPUT_BUFFER_SIZE = 100;
 char outputBuffer[OUTPUT_BUFFER_SIZE] = {};
 
+int timeInterval;
+
+// STRUCT PROTOTYPES
 
 
 // FUNCTION PROTOTYPES
@@ -105,6 +108,9 @@ void setup() {
 	// MONITOR SPEED
 	Serial.begin(115200);
 
+	// INITIALIZE STATE MACHINE
+	timeInterval = millis();
+
 	// TEST BEGIN
 	UNITY_BEGIN();
 
@@ -124,6 +130,12 @@ void setup() {
 
 	RUN_TEST(test_calibration);
 
+	RUN_TEST(test_manualControl);
+
+	delay(2000);
+
+	RUN_TEST(test_startingPosition);
+
 }
 
 // LOOP FUNCTION INITIALIZATION
@@ -131,11 +143,7 @@ void loop() {
 
 
 	// PROCESS
-	RUN_TEST(test_manualControl);
-
-	delay(2000);
-
-	RUN_TEST(test_startingPosition);
+	// N/A
 
 	// OUTPUT
 	// N/A
@@ -268,11 +276,17 @@ void test_manualControl()
 
 	bool justPrinted[ASSEMBLY_COUNT] = {};
 
+	const int PRINT_DELAY = 1000;
+	int timeBuffer;
+
 	sprintf(outputBuffer, "TEST %d OF %d: ROTATE TO %d DEGREES", printCount, TEST_ANGLE_COUNT, TEST_ANGLE[testCount]);
 	Serial.println(outputBuffer);
 
 	while(testCount < TEST_ANGLE_COUNT)
 	{
+
+		timeBuffer = timeInterval % PRINT_DELAY;
+
 		for (int index = 0; index < ASSEMBLY_COUNT; index++)
 		{
 			analogInput[index] = map(analogRead(ANALOG_PINS_UNO[index]), 0, 1023, 0, 180);
@@ -281,8 +295,10 @@ void test_manualControl()
 			lowerInterval = TEST_ANGLE[testCount] - INTERVAL_SIZE;
 			upperInterval = TEST_ANGLE[testCount] + INTERVAL_SIZE;
 
-			if ((servoArray[index].read() <= upperInterval) && (servoArray[index].read() >= lowerInterval) && (justPrinted[index] == 0))
+			if ((servoArray[index].read() <= upperInterval) && (servoArray[index].read() >= lowerInterval) && (justPrinted[index] == 0) && timeBuffer == 0)
 			{
+				TEST_ASSERT_INT_WITHIN(INTERVAL_SIZE, TEST_ANGLE[testCount], servoArray[index].read());
+				
 				sprintf(outputBuffer, "SERVO %d: ALIGNED TO %d WITH DELTA %d, PRINT %d and %d", index, TEST_ANGLE[testCount], INTERVAL_SIZE, justPrinted[0], justPrinted[1]);
 				Serial.println(outputBuffer);
 
@@ -306,7 +322,7 @@ void test_manualControl()
 
 			if (servosAligned)
 			{
-				TEST_ASSERT_INT_WITHIN(INTERVAL_SIZE, TEST_ANGLE[testCount], servoArray[index].read());
+				TEST_ASSERT_EQUAL_INT(1, servosAligned);
 
 				sprintf(outputBuffer, "SUCCESS");
 				Serial.println(outputBuffer);
@@ -322,6 +338,11 @@ void test_manualControl()
 			}
 		}
 	}
+}
+
+void checkAlignment()
+{
+
 }
 
 
