@@ -204,61 +204,56 @@ void test_calibrateRange()
 
 	for (int count = 0; count < ROTATIONS; count++)
 	{
+		// Set servos to maximum angle.
 		for (int index = 0; index < ASSEMBLY_COUNT; index++)
 		{
 			servoArray[index].write(MAX_ANGLE);
 			TEST_ASSERT_EQUAL_INT(MAX_ANGLE, servoArray[index].read());
 		}
 
-		
 		delay(1000);
 
+		// Set servos to minimum angle.
 		for (int index = 0; index < ASSEMBLY_COUNT; index++)
 		{
 			servoArray[index].write(MIN_ANGLE);
 			TEST_ASSERT_EQUAL_INT(MIN_ANGLE, servoArray[index].read());
 		}
 
-
 		delay(1000);
-
-		for (int index = 0; index < ASSEMBLY_COUNT; index++)
-		{
-			servoArray[index].write(MID_ANGLE);
-			TEST_ASSERT_EQUAL_INT(MID_ANGLE, servoArray[index].read());
-		}
 	}
 }
 
 void test_calibrateInterval()
 {
-  for (int count = 0; count < (TEST_ANGLE_COUNT); count++)
-  {
-    for (int index = 0; index < ASSEMBLY_COUNT; index++)
-    {
-      servoArray[index].write(TEST_ANGLE[count]);
-      TEST_ASSERT_EQUAL_INT(TEST_ANGLE[count], servoArray[index].read());
-    }
+	// Write ascending positions.
+	for (int count = 0; count < (TEST_ANGLE_COUNT); count++)
+	{
+		for (int index = 0; index < ASSEMBLY_COUNT; index++)
+		{
+			servoArray[index].write(TEST_ANGLE[count]);
+			TEST_ASSERT_EQUAL_INT(TEST_ANGLE[count], servoArray[index].read());
+		}
+		delay(1000);
+	}
 
-    delay(1000);
-  }
+	// Write descending positions.
+	for (int count = TEST_ANGLE_COUNT - 1; count > (-1); count--)
+	{
+		for (int index = 0; index < ASSEMBLY_COUNT; index++)
+		{
+			servoArray[index].write(TEST_ANGLE[count]);
+			TEST_ASSERT_EQUAL_INT(TEST_ANGLE[count], servoArray[index].read());
+		}
+		delay(1000);
+	}
 
-  for (int count = TEST_ANGLE_COUNT - 1; count > (-1); count--)
-  {
-    for (int index = 0; index < ASSEMBLY_COUNT; index++)
-    {
-      servoArray[index].write(TEST_ANGLE[count]);
-      TEST_ASSERT_EQUAL_INT(TEST_ANGLE[count], servoArray[index].read());
-    }
-
-    delay(1000);
-  }
-    
-  for (int index = 0; index < ASSEMBLY_COUNT; index++)
-  {
-    servoArray[index].write(MIN_ANGLE);
-	TEST_ASSERT_EQUAL_INT(MIN_ANGLE, servoArray[index].read());
-  }
+	// Reset to minimum angle.
+	for (int index = 0; index < ASSEMBLY_COUNT; index++)
+	{
+		servoArray[index].write(MIN_ANGLE);
+		TEST_ASSERT_EQUAL_INT(MIN_ANGLE, servoArray[index].read());
+	}
 
 }
 
@@ -271,11 +266,9 @@ void test_manualControl()
 	int lowerInterval;
 	int upperInterval;
 	const int INTERVAL_SIZE = 10;
-
-	bool servosAligned = 1;
+	bool servosAligned;
 
 	bool justPrinted[ASSEMBLY_COUNT] = {};
-
 	const int PRINT_DELAY = 1000;
 	int timeBuffer;
 
