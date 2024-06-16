@@ -35,8 +35,11 @@ This process will repeat for as long as the test conditions and program are acti
 
 // HEADER FILE/PREPROCESSOR LIBRARY INITIALIZATION
 #include <Arduino.h>
+#include "avr8-stub.h"
+#include "app_api.h"
 #include <Servo.h>
 #include <unity.h>
+
 
 // UNO PARAMETERS
 const int ANALOG_PIN_COUNT_UNO = 6;
@@ -71,10 +74,45 @@ int analogInput[ASSEMBLY_COUNT] = {};
 const int OUTPUT_BUFFER_SIZE = 100;
 char outputBuffer[OUTPUT_BUFFER_SIZE] = {};
 
-int timeInterval;
 
-// STRUCT PROTOTYPES
 
+// STRUCT DEFINITIONS
+struct manualControl
+{
+	int testCount = 0;
+	int testCountControl = TEST_ANGLE_COUNT - 1;
+	int displayCount = testCount + 1;
+
+	int lowerInterval;
+	int upperInterval;
+	const int INTERVAL_SIZE = 10;
+	bool allServosAligned;
+
+	int maxPrints = 1;
+	int printCount[ASSEMBLY_COUNT] = {};
+	const unsigned long int DELAY_THRESHOLD = 100;
+	unsigned long int lastPrintTime[ASSEMBLY_COUNT] = {};
+	unsigned long int timeInterval;
+	unsigned long int timeBuffer;
+
+
+	void initializeUserControl();
+	void userPrompt();
+	void writeServos();
+	bool checkPrintConditions(int);
+	bool checkAlignmentConditions(int);
+	void printAlignment();
+	bool checkPrintInterval(int);
+	bool checkTotalAlignment();
+	void confirmTotalAlignment();
+	void initializeControlValues();
+	void initializePrintClock();
+	void timestampPrint(int);
+	void setPrintCounts();
+};
+
+// STRUCT INITIALIZATION
+manualControl master;
 
 // FUNCTION PROTOTYPES
 void test_verifySettings();
@@ -102,14 +140,13 @@ void tearDown(void)
 // SETUP FUNCTION INITIALIZATION
 void setup() {
 
+	debug_init();
+
 	// MONITOR DELAY
 	delay(2000);
 
 	// MONITOR SPEED
-	Serial.begin(115200);
-
-	// INITIALIZE STATE MACHINE
-	timeInterval = millis();
+	// Serial.begin(115200);
 
 	// TEST BEGIN
 	UNITY_BEGIN();
@@ -123,7 +160,7 @@ void setup() {
 	{
 		analogInput[index] = analogRead(ANALOG_PINS_UNO[index]);
 		servoArray[index].attach(PWM_PINS_UNO[index]);
-
+ 
 	}
 
 	RUN_TEST(test_verifySettings);
@@ -154,6 +191,8 @@ void loop() {
 }
 
 //**************** TEST END ****************
+
+
 
 // FUNCTION DEFINITIONS
 void test_verifySettings()
@@ -191,6 +230,7 @@ void test_calibration()
 
 void test_startingPosition()
 {
+	// Write to default position.
 	for (int index = 0; index < ASSEMBLY_COUNT; index++)
 	{
 		servoArray[index].write(MID_ANGLE);
@@ -259,85 +299,177 @@ void test_calibrateInterval()
 
 void test_manualControl()
 {
-	int testCount = 0;
-	int testCountControl = TEST_ANGLE_COUNT - 1;
-	int printCount = testCount + 1;
+	master.initializeUserControl();
+}
 
-	int lowerInterval;
-	int upperInterval;
-	const int INTERVAL_SIZE = 10;
-	bool servosAligned;
-
-	bool justPrinted[ASSEMBLY_COUNT] = {};
-	const int PRINT_DELAY = 1000;
-	int timeBuffer;
-
-	sprintf(outputBuffer, "TEST %d OF %d: ROTATE TO %d DEGREES", printCount, TEST_ANGLE_COUNT, TEST_ANGLE[testCount]);
-	Serial.println(outputBuffer);
+void manualControl::initializeUserControl()
+{
+	// Initial prompt.
+	userPrompt();
 
 	while(testCount < TEST_ANGLE_COUNT)
 	{
 
-		timeBuffer = timeInterval % PRINT_DELAY;
+		initializeControlValues();
+		initializePrintClock();
 
-		for (int index = 0; index < ASSEMBLY_COUNT; index++)
+		writeServos();
+
+		printAlignment();
+
+		confirmTotalAlignment();
+
+	}
+}
+
+void manualControl::writeServos()
+{
+	for (int index = 0; index < ASSEMBLY_COUNT; index++)
+	{
+		analogInput[index] = map(analogRead(ANALOG_PINS_UNO[index]), 0, 1023, 0, 180);
+		servoArray[index].write(analogInput[index]);
+	}
+}
+
+void manualControl::userPrompt()
+{
+	if (testCount == 0)
+	{
+		// sprintf(outputBuffer, "TEST %d OF %d: ROTATE TO %d DEGREES", displayCount, TEST_ANGLE_COUNT, TEST_ANGLE[testCount]);
+		// Serial.println(outputBuffer);
+		setPrintCounts();
+	}
+	else if (testCount <= testCountControl && testCount != 0)
+	{
+		// sprintf(outputBuffer, "TEST %d OF %d: ROTATE TO %d DEGREES", displayCount, TEST_ANGLE_COUNT, TEST_ANGLE[testCount]);
+		// Serial.println(outputBuffer);
+		setPrintCounts();
+	}
+}
+
+void manualControl::printAlignment()
+{
+	for (int index = 0; index < ASSEMBLY_COUNT; index++)
+	{
+		if (checkPrintConditions(index))
 		{
-			analogInput[index] = map(analogRead(ANALOG_PINS_UNO[index]), 0, 1023, 0, 180);
-			servoArray[index].write(analogInput[index]);
+			// sprintf(outputBuffer, "SERVO %d: ALIGNED TO %d WITH DELTA %d", index, TEST_ANGLE[master.testCount], master.INTERVAL_SIZE);
+			// Serial.println(outputBuffer);
 
-			lowerInterval = TEST_ANGLE[testCount] - INTERVAL_SIZE;
-			upperInterval = TEST_ANGLE[testCount] + INTERVAL_SIZE;
+			timestampPrint(index);
 
-			if ((servoArray[index].read() <= upperInterval) && (servoArray[index].read() >= lowerInterval) && (justPrinted[index] == 0) && timeBuffer == 0)
-			{
-				TEST_ASSERT_INT_WITHIN(INTERVAL_SIZE, TEST_ANGLE[testCount], servoArray[index].read());
-				
-				sprintf(outputBuffer, "SERVO %d: ALIGNED TO %d WITH DELTA %d, PRINT %d and %d", index, TEST_ANGLE[testCount], INTERVAL_SIZE, justPrinted[0], justPrinted[1]);
-				Serial.println(outputBuffer);
-
-				// TODO: TROUBLESHOOT PRINT FLAGS
-				justPrinted[index] = 1;
-			}
-			else if (((servoArray[index].read() > upperInterval) || (servoArray[index].read() < lowerInterval)) && justPrinted[index] == 1)
-			{
-				justPrinted[index] = 0;
-			}
-
-			servosAligned = 1;
-
-			for (int count = 0; count < ASSEMBLY_COUNT; count++)
-			{
-				if ((servoArray[count].read() > upperInterval) || (servoArray[count].read() < lowerInterval))
-				{
-					servosAligned = 0;
-				}
-			}
-
-			if (servosAligned)
-			{
-				TEST_ASSERT_EQUAL_INT(1, servosAligned);
-
-				sprintf(outputBuffer, "SUCCESS");
-				Serial.println(outputBuffer);
-
-					testCount++;
-					printCount++;
-
-				if (testCount <= testCountControl)
-				{
-					sprintf(outputBuffer, "TEST %d OF %d: ROTATE TO %d DEGREES", printCount, TEST_ANGLE_COUNT, TEST_ANGLE[testCount]);
-					Serial.println(outputBuffer);
-				}
-			}
+			TEST_ASSERT_INT_WITHIN(INTERVAL_SIZE, TEST_ANGLE[testCount], servoArray[index].read());
 		}
 	}
 }
 
-void checkAlignment()
+void manualControl::confirmTotalAlignment()
 {
+	if (checkTotalAlignment())
+	{
+		TEST_ASSERT_EQUAL_INT(1, checkTotalAlignment());
+
+		// sprintf(outputBuffer, "SUCCESS");
+		// Serial.println(outputBuffer);
+
+		testCount++;
+		displayCount++;
+
+		userPrompt();
+	}
+}
+
+bool manualControl::checkTotalAlignment()
+{
+	bool allServosAligned = 1;
+
+	for (int index = 0; index < ASSEMBLY_COUNT; index++)
+	{
+		if(checkAlignmentConditions(index) != 1)
+			allServosAligned = 0;
+	}
+
+	return allServosAligned;
+}
+
+bool manualControl::checkAlignmentConditions(int index)
+{
+	bool validAlignment = 1;
+
+	if (servoArray[index].read() >= upperInterval)
+		validAlignment = 0;
+
+	if (servoArray[index].read() <= lowerInterval)
+		validAlignment = 0;
+
+	return validAlignment;
+}
+
+bool manualControl::checkPrintConditions(int index)
+{
+	bool validPrint = 1;
+
+	if (!checkAlignmentConditions(index))
+		validPrint = 0;
+
+	if (!checkPrintInterval(index))
+		validPrint = 0;
+		
+	return validPrint;
+}
+
+void manualControl::initializeControlValues()
+{
+	lowerInterval = TEST_ANGLE[testCount] - INTERVAL_SIZE;
+	upperInterval = TEST_ANGLE[testCount] + INTERVAL_SIZE;
+}                                                         
+
+void manualControl::initializePrintClock()
+{
+	timeInterval = millis();
+}
+
+void manualControl::timestampPrint(int index)
+{
+	printCount[index]++;
+	lastPrintTime[index] = millis();
+
+	if (timeBuffer > DELAY_THRESHOLD)
+	{
+		maxPrints = 1;
+		printCount[index] = 0;
+	}
+	else
+	{
+		maxPrints = 0;
+	}	
 
 }
 
+void manualControl::setPrintCounts()
+{
+	for (int index = 0; index < ASSEMBLY_COUNT; index++)
+	{
+		printCount[index] = 0;
+	}
+}
+
+bool manualControl::checkPrintInterval(int index)
+{
+	bool validPrintTime = 1;
+
+	timeBuffer = timeInterval - lastPrintTime[index];
+
+	if (printCount[index] >= maxPrints)
+		validPrintTime = 0;
+
+	if (timeBuffer < DELAY_THRESHOLD)
+		validPrintTime = 0;
+	else
+		printCount[index] = 0;
+
+	return validPrintTime;
+}
 
 // PRIMARY CONCEPTS
 /*
@@ -345,4 +477,5 @@ void checkAlignment()
 2. Analog input pins are required for potentiometer.
 3. Digital PWM pins (marked with a ~) are required for servo control. 
 4. Analog range: 0-1023 (10-bit or 2^10)
+5. Wrapper functions are needed for complex processing of nested functions in the Unity Testing Framework.
 */
