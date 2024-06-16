@@ -202,12 +202,3 @@ bool manualControl::checkPrintInterval(int index)
 
 	return validPrintTime;
 }
-
-// PRIMARY CONCEPTS
-/*
-1. Analog values will be converted to digital values.
-2. Analog input pins are required for potentiometer.
-3. Digital PWM pins (marked with a ~) are required for servo control. 
-4. Analog range: 0-1023 (10-bit or 2^10)
-5. Wrapper functions are needed for complex processing of nested functions in the Unity Testing Framework.
-*/
