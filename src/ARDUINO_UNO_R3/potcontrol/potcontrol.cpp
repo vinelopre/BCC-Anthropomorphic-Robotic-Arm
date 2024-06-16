@@ -70,6 +70,11 @@ void manualControl::userPrompt()
 		Serial.println(outputBuffer);
 		setPrintCounts();
 	}
+	else if (testCount > testCountControl)
+	{
+		sprintf(outputBuffer, "TEST COMPLETE. RESTORING TO DEFAULT POSITIONS...");
+		Serial.println(outputBuffer);
+	}
 }
 
 void manualControl::printAlignment()

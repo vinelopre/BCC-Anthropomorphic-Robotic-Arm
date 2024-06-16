@@ -36,8 +36,6 @@ This process will repeat for as long as the test conditions and program are acti
 // HEADER FILE/PREPROCESSOR LIBRARY INITIALIZATION
 #include <Arduino.h>
 #include <Servo.h>
-#include "potcontrol/calibrations.h"
-#include "potcontrol/main_settings.h"
 #include "potcontrol/potcontrol.h"
 
 // SERVO INITIALIZATIONS
