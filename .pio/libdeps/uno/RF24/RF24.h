@@ -130,7 +130,6 @@ private:
 #if defined(MRAA)
     GPIO gpio;
 #endif
-
     rf24_gpio_pin_t ce_pin;  /* "Chip Enable" pin, activates the RX or TX role */
     rf24_gpio_pin_t csn_pin; /* SPI Chip select */
     uint32_t spi_speed;      /* SPI Bus Speed */
@@ -145,7 +144,7 @@ private:
     bool _is_p_variant;               /* For storing the result of testing the toggleFeatures() affect */
     bool _is_p0_rx;                   /* For keeping track of pipe 0's usage in user-triggered RX mode. */
 
-public:
+protected:
     /**
      * SPI transactions
      *
@@ -878,7 +877,7 @@ public:
      * to clear by issuing txStandBy() or ensure appropriate time between transmissions.
      *
      * Use txStandBy() when this function returns `false`.
-     * 
+     *
      * Example (Partial blocking):
      * @code
      * radio.writeFast(&buf,32);  // Writes 1 payload to the buffers
@@ -1277,11 +1276,11 @@ public:
      * @code
      * bool goodSignal = radio.testRPD();
      * if(radio.available()){
-     *    Serial.println(goodSignal ? "Strong signal > 64dBm" : "Weak signal < 64dBm" );
-     *    radio.read(0,0);
+     *    Serial.println(goodSignal ? "Strong signal > -64dBm" : "Weak signal < -64dBm" );
+     *    radio.read(&payload,sizeof(payload));
      * }
      * @endcode
-     * @return true if a signal less than or equal to -64dBm was detected,
+     * @return true if a signal greater than or equal to -64dBm was detected,
      * false if not.
      */
     bool testRPD(void);
@@ -2236,7 +2235,7 @@ private:
  *
  * This is a simple example of using the RF24 class on a Raspberry Pi.
  *
- * Remember to install the [Python wrapper](md_docs_python_wrapper.html), then
+ * Remember to install the [Python wrapper](python_wrapper.md), then
  * navigate to the "RF24/examples_linux" folder.
  * <br>To run this example, enter
  * @code{.sh}python3 getting_started.py @endcode and follow the prompts.
