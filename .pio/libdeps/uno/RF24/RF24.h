@@ -145,7 +145,7 @@ private:
     bool _is_p_variant;               /* For storing the result of testing the toggleFeatures() affect */
     bool _is_p0_rx;                   /* For keeping track of pipe 0's usage in user-triggered RX mode. */
 
-protected:
+public:
     /**
      * SPI transactions
      *

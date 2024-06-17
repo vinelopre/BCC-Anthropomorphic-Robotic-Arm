@@ -1,22 +1,25 @@
-
 #include <Arduino.h>
+#include <SPI.h>
+#include <nRF24L01.h>
+#include <RF24.h>
+#include <Servo.h>
 
-// put function declarations here:
-int myFunction(int, int);
+RF24 radio(7, 8); // CE, CSN
+const byte address[6] = "00001";
 
-int result;
+uint8_t analog1;
+Servo servo1;
 
 void setup() {
-  // put your setup code here, to run once:
-  result = myFunction(2, 3);
+  radio.begin();
+  radio.openReadingPipe(0,address);
+  radio.setPALevel(RF24_PA_MIN);
+  radio.startListening();
+  analog1 = 0;
+  servo1.attach(4);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  Serial.print(result);
-}
-
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+    radio.read(&analog1, sizeof(analog1));
+    servo1.write(analog1);
 }
