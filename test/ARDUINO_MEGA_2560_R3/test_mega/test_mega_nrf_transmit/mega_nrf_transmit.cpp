@@ -30,6 +30,7 @@ void test_byte_address(void){
 
 void test_write(void){
     radio.begin();
+    radio.setAutoAck(true);
     radio.setPALevel(RF24_PA_MIN);
     radio.stopListening();
     radio.openWritingPipe(0xF0F0F0F0F0);

@@ -9,8 +9,10 @@
 Servo servo1;
 Servo servo2;
 Servo servo3;
+Servo servo4;
+Servo servo5;
 
-Servo servoArray[ASSEMBLY_COUNT] = { servo1, servo2, servo3 };
+Servo servoArray[ASSEMBLY_COUNT] = { servo1, servo2, servo3, servo4, servo5 };
 
 // STRUCT INITIALIZATION
 manualControl master;
@@ -44,4 +46,3 @@ void loop()
 }
 
 //**************** MAIN END ****************
-
