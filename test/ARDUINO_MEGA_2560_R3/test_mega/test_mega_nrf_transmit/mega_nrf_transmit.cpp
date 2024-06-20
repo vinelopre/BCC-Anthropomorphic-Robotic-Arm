@@ -30,9 +30,8 @@ void test_byte_address(void){
 
 void test_write(void){
     radio.begin();
-    radio.setAutoAck(true);
     radio.setPALevel(RF24_PA_MIN);
-    // radio.stopListening();
+    radio.stopListening();
     radio.openWritingPipe(0xF0F0F0F0F0);
 
     int valueInPtr = 55;
@@ -43,10 +42,10 @@ void test_write(void){
         ptr = &valueInPtr;;
 
         test = radio.write(ptr, sizeof(ptr));  
-
         Serial.println(test);
-        Serial.println(*ptr);
         TEST_ASSERT_EQUAL(test, true);
+        TEST_ASSERT_EQUAL_INT(i, (RX_ADDR_P0 + i));
+        TEST_ASSERT_EQUAL_INT(i, (TX_ADDR + i));  
     }
 }
 
