@@ -4,7 +4,7 @@
 #include <Servo.h>
 
 // SERVO AND ASSEMBLY INITIALIZATION
-const int ASSEMBLY_COUNT = 3;
+const int ASSEMBLY_COUNT = 5;
 
 // TEST PARAMETERS
 const int MIN_ANGLE = 0;
